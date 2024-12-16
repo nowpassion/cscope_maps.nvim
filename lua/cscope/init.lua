@@ -29,6 +29,7 @@ M.opts = {
 	skip_picker_for_single_result = false,
 	db_build_cmd_args = { "-bqkv" },
 	statusline_indicator = nil,
+	db_absoulute_path = false,
 	project_rooter = {
 		enable = false,
 		change_cwd = false,
@@ -110,11 +111,15 @@ M.parse_line = function(line, db_pre_path)
 	local sp = vim.split(line, "%s+")
 
 	t.filename = sp[1]
-	-- in case of "-t" and "-e" pre_path is already present
-	if db_pre_path and not vim.startswith(t.filename, db_pre_path) then
-		t.filename = vim.fs.joinpath(db_pre_path, t.filename)
+
+	if M.opts.db_absoulute_path == false then
+		-- in case of "-t" and "-e" pre_path is already present
+		if db_pre_path and not vim.startswith(t.filename, db_pre_path) then
+			t.filename = vim.fs.joinpath(db_pre_path, t.filename)
+		end
+
+		t.filename = utils.get_rel_path(vim.fn.getcwd(), t.filename)
 	end
-	t.filename = utils.get_rel_path(vim.fn.getcwd(), t.filename)
 
 	t.ctx = sp[2]
 	t.lnum = sp[3]
